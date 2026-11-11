@@ -1,0 +1,216 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pinutzii ♡</title>
+<style>
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  min-height:100vh;
+  background:#ffdce9;
+  color:#a64c70;
+  font-family:Georgia,serif;
+  overflow-x:hidden;
+}
+header {
+  text-align:center;
+  padding:35px 12px 20px;
+}
+h1 {
+  font-size:48px;
+  margin:5px;
+  color:#d76d9b;
+  text-shadow:2px 2px white;
+}
+.subtitle { letter-spacing:4px; font-size:12px; }
+.panel {
+  width:min(850px,94%);
+  margin:10px auto;
+  padding:20px;
+  background:#fff5f9;
+  border:3px double #e9a2c1;
+  border-radius:15px;
+  box-shadow:0 0 20px #eaa5c2;
+  text-align:center;
+}
+#stage {
+  position:relative;
+  width:min(850px,94%);
+  height:520px;
+  margin:15px auto;
+  overflow:hidden;
+  background:#ffeaf2;
+  border:3px dashed #e9a2c1;
+  border-radius:12px;
+  background-image:radial-gradient(#f3b9d0 1px,transparent 1px);
+  background-size:18px 18px;
+}
+.gif {
+  position:absolute;
+  width:120px;
+  cursor:grab;
+  touch-action:none;
+  user-select:none;
+}
+.gif:active { cursor:grabbing; }
+.gif.selected {
+  outline:2px dashed #d76d9b;
+}
+button, input {
+  border:1px solid #e6a0bd;
+  background:#fff;
+  color:#a64c70;
+  border-radius:8px;
+  padding:9px;
+  margin:4px;
+}
+button { cursor:pointer; }
+button:hover { background:#ffe0ed; }
+footer {
+  text-align:center;
+  padding:25px;
+  font-size:13px;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div>♡ ˚₊‧꒰ა ♡ ໒꒱ ‧₊˚ ♡</div>
+  <h1>pinutzii</h1>
+  <div class="subtitle">WELCOME TO MY LITTLE WORLD</div>
+  <p>୨୧ made with love ୨୧</p>
+</header>
+
+<div class="panel">
+  <h3>♡ my personal space ♡</h3>
+  <p>Bienvenid@ a mi pequeño mundo 🎀</p>
+  <p>♡ dreams · love · pink things ♡</p>
+</div>
+
+<div class="panel">
+  <h3>GIF DECORATOR 🎀</h3>
+  <input id="gifUrl" placeholder="Pega aquí el enlace de tu GIF">
+  <button onclick="addGif()">Agregar GIF +</button>
+  <br>
+  <button onclick="bringFront()">Traer adelante</button>
+  <button onclick="sendBack()">Enviar atrás</button>
+  <button onclick="deleteGif()">Eliminar GIF</button>
+  <br>
+  <label>Tamaño:</label>
+  <input type="range" id="size" min="30" max="350" value="120">
+  <p><small>Arrastra los GIFs con el mouse o tu dedo.</small></p>
+</div>
+
+<div id="stage">
+  <div style="position:absolute;top:45%;width:100%;text-align:center;pointer-events:none;opacity:.5">
+    ♡ decorate your world ♡
+  </div>
+</div>
+
+<div class="panel">
+  <h3>♫ MY MUSIC ♫</h3>
+  <input id="musicUrl" placeholder="URL directa de tu audio MP3">
+  <button onclick="playMusic()">▶ Play</button>
+  <button onclick="pauseMusic()">Ⅱ Pause</button>
+  <audio id="player" loop></audio>
+  <p><small>La música comienza cuando pulses Play.</small></p>
+</div>
+
+<footer>
+  ♡ pinutzii ♡<br>
+  ୨୧ thanks for visiting ୨୧
+</footer>
+
+<script>
+const stage = document.getElementById('stage');
+let selected = null;
+let z = 1;
+
+function addGif(url) {
+  url = url || document.getElementById('gifUrl').value.trim();
+  if (!url) return;
+
+  const img = document.createElement('img');
+  img.src = url;
+  img.className = 'gif';
+  img.style.left = '35%';
+  img.style.top = '30%';
+  img.style.zIndex = ++z;
+  img.draggable = false;
+
+  img.addEventListener('click', e => {
+    e.stopPropagation();
+    select(img);
+  });
+
+  let dragging = false, dx = 0, dy = 0;
+
+  img.addEventListener('pointerdown', e => {
+    select(img);
+    dragging = true;
+    const rect = img.getBoundingClientRect();
+    const base = stage.getBoundingClientRect();
+    dx = e.clientX - rect.left;
+    dy = e.clientY - rect.top;
+    img.setPointerCapture(e.pointerId);
+  });
+
+  img.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    const rect = stage.getBoundingClientRect();
+    img.style.left = (e.clientX - rect.left - dx) + 'px';
+    img.style.top = (e.clientY - rect.top - dy) + 'px';
+  });
+
+  img.addEventListener('pointerup', () => dragging = false);
+  img.addEventListener('pointercancel', () => dragging = false);
+
+  img.onerror = () => alert('No se pudo cargar ese GIF. Revisa el enlace.');
+  stage.appendChild(img);
+  select(img);
+  document.getElementById('gifUrl').value = '';
+}
+
+function select(img) {
+  document.querySelectorAll('.gif').forEach(el => el.classList.remove('selected'));
+  selected = img;
+  img.classList.add('selected');
+  document.getElementById('size').value = parseInt(img.style.width) || 120;
+}
+
+stage.addEventListener('click', () => {
+  if (selected) selected.classList.remove('selected');
+  selected = null;
+});
+
+document.getElementById('size').addEventListener('input', e => {
+  if (selected) selected.style.width = e.target.value + 'px';
+});
+
+function bringFront() {
+  if (selected) selected.style.zIndex = ++z;
+}
+function sendBack() {
+  if (selected) selected.style.zIndex = 1;
+}
+function deleteGif() {
+  if (selected) selected.remove();
+  selected = null;
+}
+
+function playMusic() {
+  const url = document.getElementById('musicUrl').value.trim();
+  const player = document.getElementById('player');
+  if (url) player.src = url;
+  if (player.src) player.play().catch(() => alert('No se pudo reproducir el audio.'));
+}
+function pauseMusic() {
+  document.getElementById('player').pause();
+}
+</script>
+</body>
+</html>
